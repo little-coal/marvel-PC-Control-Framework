@@ -14,7 +14,7 @@ class Swarm():
             Swarm has 2 mode: Swarm and CombinedPlatform
         """
         self.marvel_num = num
-        self.mode = mode   #true refers to swarm, false refers to conbinedFrame
+        self.mode = mode   #true refers to swarm, false refers to conbinedPlatform
         self.control_mode = control_mode  #'position': x, y, z, yaw
         self._init_time()
         self._init_logger()
@@ -26,19 +26,15 @@ class Swarm():
         cflib.crtp.init_drivers()
         self._connect()
         self.start_time = time.time()
+        # Key Loop
         while 1:
             if stop_shared.value == 1:
                 break
             self.current_time = time.time()
-            # Record value
-            # if self.mode:
-            #     pos_ref_shared[:] = self.marvel_swarm_handle[i].target_pos_and_rot[0:3]
-            #     rpy_ref_shared[:] = self.marvel_swarm_handle[i].target_pos_and_rot[3:6]
-            #     vel_ref_shared[:] = self.marvel_swarm_handle[i].target_velocity[0:3]
-            #     agv_ref_shared[:] = self.marvel_swarm_handle[i].target_velocity[3:6]
             if self.current_time - self.last_loop_time > self.update_time:
                 if self.mode:
                     if take_off_shared.value == 1:
+                        # print("Take Off!")
                         self._send_extpose(pos_shared, quat_shared)
                         self._send_cmd(cmd_ref_shared)        
                 else:
@@ -46,7 +42,6 @@ class Swarm():
                 self._record(pos_shared, vel_shared, quat_shared, omega_shared)
                 self.dt = self.current_time - self.last_loop_time
                 self.last_loop_time = self.current_time
-                # self.log.append(self.dt)
             else:
                 time.sleep(0.001)
         self._stop()
@@ -57,7 +52,6 @@ class Swarm():
         self.last_loop_time = time.time()
         self.current_time = self.last_loop_time
         self.dt = 0
-        # self.log = []
 
     def _init_logger(self, path='./logs'):
         self.logger = Logger(folder_name=path)
@@ -69,7 +63,7 @@ class Swarm():
             marvel = Marvel('radio://0/100/2M/E7E7E7E7E{}'.format(i), i)
             self.marvel_swarm_handle.append(marvel)
             # print("Find MARVEL num:{}".format(len(self.marvel_swarm_handle)))
-        print("------MARVEL Connection Completed------")
+        print("------MARVEL Connection Initialized------")
 
     def _send_extpose(self, pos_shared, quat_shared):
         for i in range(self.marvel_num):
@@ -102,7 +96,7 @@ class Swarm():
 
 if __name__ == "__main__":
     takeoff = mp.Value('i', 0)
-    stop = mp.Value('i', 1)
+    stop = mp.Value('i', 0)
     
     swarm = Swarm()
     swarm.run(take_off_shared=takeoff, stop_shared=stop)

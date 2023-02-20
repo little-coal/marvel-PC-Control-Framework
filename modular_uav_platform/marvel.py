@@ -10,6 +10,7 @@ Marvel: Class of the single modular UAV.
 import logging
 import numpy as np
 
+import cflib
 from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.log import LogConfig
 from cflib.positioning.motion_commander import MotionCommander
@@ -281,3 +282,10 @@ class Marvel:
         self._cf.param.set_value('posCtlPid.zKp', 2.0) #2
         self._cf.param.set_value('posCtlPid.zKi', 0.5) #0.5
         self._cf.param.set_value('posCtlPid.zKd', 0.0) #0
+
+if __name__ == "__main__":
+    # Initialize the low-level drivers
+    cflib.crtp.init_drivers()
+    
+    link_uri = 'radio://0/100/2M/E7E7E7E7E0'
+    marvel = Marvel(link_uri, 0)

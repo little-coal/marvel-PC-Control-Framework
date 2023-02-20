@@ -8,13 +8,9 @@ Class KeyboardInput: Send command by keyboard, include take off and stop.
 
 """
 
-import tkinter as tk
 import time
-import os
-import sys
-import csv
-import threading
-import multiprocessing
+import tkinter as tk
+
 import numpy as np
 
 class KeyboardInput():

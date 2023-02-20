@@ -9,7 +9,6 @@ from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 uri = 'radio://0/100/2M/E7E7E7E7E0'
 
 def simple_connect():
-
     print("Yeah, I'm connected! :D")
     time.sleep(3)
     print("Now I will disconnect :'(")
@@ -19,5 +18,4 @@ if __name__ == '__main__':
     cflib.crtp.init_drivers()
 
     with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
-
         simple_connect()
