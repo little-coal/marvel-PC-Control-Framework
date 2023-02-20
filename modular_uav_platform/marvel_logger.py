@@ -12,6 +12,8 @@ import csv
 import time
 import numpy as np
 import matplotlib.pyplot as plt
+# import matplotlib
+# matplotlib.use('Agg')
 
 class Logger():
     def __init__(self, folder_name='./logs'):
