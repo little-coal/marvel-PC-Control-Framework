@@ -1,11 +1,9 @@
 import time
 import config
-import logging
 import cflib.crtp
 import multiprocessing as mp
 
 from marvel import Marvel
-from marvel_keyboard import KeyboardInput
 from marvel_logger import Logger
 
 class Swarm():
