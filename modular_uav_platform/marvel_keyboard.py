@@ -36,6 +36,7 @@ class KeyboardInput():
 		self.x_step, self.y_step, self.z_step = 0.1, 0.1, 0.1
 
 		self.stop = 0
+		self.switch_mode = 1
 		self.take_off = 0
 
 	def key_input(self, event):
@@ -44,6 +45,11 @@ class KeyboardInput():
 		# Add command here
 		if key_press == 'space':
 			self.take_off = 1
+		elif key_press == 'return':
+			if self.switch_mode == 0:
+				self.switch_mode = 1
+			elif self.switch_mode == 1:
+				self.switch_mode == 0
 		elif key_press == 'escape':
 			self.stop = 1
 		elif key_press == 'w':
