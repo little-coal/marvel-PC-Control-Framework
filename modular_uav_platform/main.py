@@ -57,14 +57,18 @@ class Master():
             if self.keyboard.stop == 1:
                 print("Program has been safely stopped.")
                 break
-            current_time = time.time()
-            if current_time - self.last_loop_time > self.update_time:
+            if self.keyboard.switch_mode == 1:
+                self.mode = True
+            elif self.keyboard.switch_mode == 0:
+                self.mode = False
+            self.current_time = time.time()
+            if self.current_time - self.last_loop_time > self.update_time:
                 self._share_vicon_data()
                 # Update keyboard values
                 self.keyboard.command.update()
                 self._share_command()
-                self._record(current_time)
-                self.last_loop_time = current_time
+                self._record()
+                self.last_loop_time = self.current_time
             else:
                 time.sleep(0.0001)
         self._stop()
@@ -140,6 +144,8 @@ class Master():
     def _share_vicon_data(self):
         pass
         # Share vicon value
+        #TODO: need to use array here. align data to each marvel
+        # for i in range(self.marvel_num):
         # self.pos_shared[:] = self.vicon.position
         # self.vel_shared[:] = self.vicon.velocity
         # self.quat_shared[:] = self.vicon.rotation
@@ -149,18 +155,19 @@ class Master():
         # Share command values from keyboard
         for i in range(self.marvel_num):
             if self.mode == True:
-                self.cmd_ref_shared[:] = self.keyboard.cmd
+                self.cmd_shared[:] = self.keyboard.cmd
             elif self.mode == False:
-                self.pos_ref_shared[:] = self.keyboard.pos
-                self.rpy_ref_shared[:] = self.keyboard.rpy
-                self.vel_ref_shared[:] = self.keyboard.vel
-                self.agv_ref_shared[:] = self.keyboard.agv
+                self.pos_base_ref_shared[:] = self.keyboard.pos
+                self.rpy_base_ref_shared[:] = self.keyboard.rpy
+                self.vel_base_ref_shared[:] = self.keyboard.vel
+                self.agv_base_ref_shared[:] = self.keyboard.agv
         self.take_off_shared.value = self.keyboard.take_off
+        self.switch_mode_shared.value = self.keyboard.switch_mode
         self.stop_shared.value = self.keyboard.stop
     
-    def _record(self, current_time):
+    def _record(self):
         if self.swarm.mode == False:
-            self.logger.log_append(int(round((current_time-self.start_time) * 1000)), int(round((current_time-self.last_loop_time) * 1000)),
+            self.logger.log_append(int(round((self.current_time-self.start_time) * 1000)), int(round((self.current_time-self.last_loop_time) * 1000)),
                                     self.pos_shared[:], self.vel_shared[:], self.quat_shared[:], self.omega_shared[:],
                                     self.pos_ref_shared[:], self.rpy_ref_shared[:],
                                     self.vel_ref_shared[:], self.agv_ref_shared[:])
