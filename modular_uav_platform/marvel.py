@@ -10,6 +10,7 @@ Marvel: Class of the single modular UAV.
 import time
 import logging
 import numpy as np
+import random
 
 import cflib
 from cflib.crazyflie import Crazyflie
@@ -295,10 +296,24 @@ if __name__ == "__main__":
     logger = Logger()
     current_time, last_loop_time, start_time = time.time(), time.time(), time.time()
     update_time = 0.01
-
     pos_shared, vel_shared = [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]
     rpy_shared, agv_shared = [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]
     while 1:
+        rand_pos, rand_vel = random.random()/1000, random.random()/1000
+        rand_rpy, rand_agv = random.random()/1000, random.random()/1000
+        pos_shared[0] += rand_pos
+        pos_shared[1] += rand_pos*2
+        pos_shared[2] += rand_pos*4
+        vel_shared[0] += rand_vel
+        vel_shared[1] += rand_vel*2
+        vel_shared[2] += rand_vel*4
+        rpy_shared[0] += rand_rpy
+        rpy_shared[1] += rand_rpy*2
+        rpy_shared[2] += rand_rpy*4
+        agv_shared[0] += rand_agv
+        agv_shared[1] += rand_agv*2
+        agv_shared[2] += rand_agv*4
+        
         current_time = time.time()
         if current_time - last_loop_time > update_time:
             marvel.send_position_setpoint(0.1, 0.2, 0.3, 0.4)
