@@ -7,6 +7,7 @@ Marvel: Class of the single modular UAV.
 
 """
 
+import time
 import logging
 import numpy as np
 
@@ -14,6 +15,8 @@ import cflib
 from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.log import LogConfig
 from cflib.positioning.motion_commander import MotionCommander
+
+from marvel_logger import Logger
 
 logging.basicConfig(level=logging.ERROR)
 
@@ -289,3 +292,30 @@ if __name__ == "__main__":
     
     link_uri = 'radio://0/100/2M/E7E7E7E7E0'
     marvel = Marvel(link_uri, 0)
+    logger = Logger()
+    current_time, last_loop_time, start_time = time.time(), time.time(), time.time()
+    update_time = 0.01
+
+    pos_shared, vel_shared = [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]
+    rpy_shared, agv_shared = [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]
+    while 1:
+        current_time = time.time()
+        if current_time - last_loop_time > update_time:
+            marvel.send_position_setpoint(0.0, 0.0, 0.2, 0.0)
+            pos_ref_shared = marvel.target_pos_and_rot[0:3]
+            rpy_ref_shared = marvel.target_pos_and_rot[3:6]
+            vel_ref_shared = marvel.target_velocity[0:3]
+            agv_ref_shared = marvel.target_velocity[3:6]
+            # Ture time from second to milisecond
+            logger.log_append(int(round((current_time-start_time) * 1000)), int(round((current_time-last_loop_time) * 1000)),
+                                    pos_shared, vel_shared, rpy_shared, agv_shared,
+                                    pos_ref_shared, rpy_ref_shared,
+                                    vel_ref_shared, agv_ref_shared)
+            last_time = current_time
+        else:
+            time.sleep(0.001)
+        if current_time - start_time > 5:
+            marvel._stop_crazyflie()
+            logger.savelog()
+            logger.plot()
+            break

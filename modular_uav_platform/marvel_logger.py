@@ -58,7 +58,17 @@ class Logger():
                                 "agv_x_ref", "agv_y_ref", "agv_z_ref"]]
 
     def log_append(self, timestamp, dt, pos, vel, rpy, agv, pos_ref, rpy_ref, vel_ref, agv_ref):
-        pass
+        #TODO:
+        #for i in range(self.marvel_num):
+        self.log_memory.append([timestamp, dt,
+                                pos[0], pos[1], pos[2],
+                                vel[0], vel[1], vel[2],
+                                rpy[0], rpy[1], rpy[2],
+                                agv[0], agv[1], agv[2],
+                                pos_ref[0], pos_ref[1], pos_ref[2], 
+								rpy_ref[0], rpy_ref[1], rpy_ref[2], 
+								vel_ref[0], vel_ref[1], vel_ref[2],
+								agv_ref[0], agv_ref[1], agv_ref[2]])
 
     def log_base_append(self, timestamp, dt, 
                         pos, vel, rpy, agv, 
