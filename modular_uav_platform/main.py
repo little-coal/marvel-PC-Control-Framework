@@ -29,6 +29,7 @@ from marvel import Marvel
 from marvel_swarm import Swarm
 from marvel_keyboard import KeyboardInput
 from marvel_logger import Logger
+from utils import rpy2quat, quat2rpy
 
 # Only output errors from the logging framework
 logging.basicConfig(level=logging.ERROR)
@@ -52,6 +53,7 @@ class Master():
     def run(self):
         self.start_time = time.time()
         self.last_loop_time = self.start_time
+        self.current_time = self.last_loop_time
         print("Start time:", self.start_time)
         while 1:
             if self.keyboard.stop == 1:
@@ -81,15 +83,18 @@ class Master():
         self.stop_shared = mp.Value('i', 0)    
 
         ###### Used for Swarm ######
-        # Reference/Control variables, get from keyboard
+        # Control variables, get from keyboard
         self.cmd_shared = mp.Array('f', 4*self.marvel_num)
+        # Reference variables, get from swarm(marvel)
+        self.pos_ref_shared, self.vel_ref_shared = mp.Array('f', 3*self.marvel_num), mp.Array('f', 3*self.marvel_num)
+        self.rpy_ref_shared, self.agv_ref_shared = mp.Array('f', 3*self.marvel_num), mp.Array('f', 3*self.marvel_num)
         # Ground truth varaibles, get from vicon
         self.pos_shared, self.vel_shared = mp.Array('f', 3*self.marvel_num), mp.Array('f', 3*self.marvel_num)
-        self.quat_shared, self.omega_shared = mp.Array('f', 4*self.marvel_num), mp.Array('f', 3*self.marvel_num)
-        for i in range(4*self.marvel_num):
-            if i % 4 == 0:
-                # legal quaternion
-                self.quat_shared[i] = 1
+        self.rpy_shared, self.agv_shared = mp.Array('f', 3*self.marvel_num), mp.Array('f', 3*self.marvel_num)
+        # self.quat_shared, self.omega_shared = mp.Array('f', 4*self.marvel_num), mp.Array('f', 3*self.marvel_num)
+        # for i in range(4*self.marvel_num):
+        #     # legal quaternion
+        #     self.quat_shared[0*self.marvel_num:4*self.marvel_num] = [1, 0, 0, 0]
 
         ###### Use for CombinedPlatform ######
         # Reference variables, get from keyboard
