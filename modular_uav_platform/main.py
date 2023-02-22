@@ -133,7 +133,9 @@ class Master():
                                                                 # Use for swarm
                                                                 self.cmd_shared, 
                                                                 self.pos_shared, self.vel_shared,
-                                                                self.quat_shared, self.omega_shared,
+                                                                self.rpy_shared, self.agv_shared,
+                                                                self.pos_ref_shared, self.vel_ref_shared, 
+                                                                self.rpy_ref_shared, self.agv_ref_shared,
                                                                 # Use for combined platform
                                                                 self.quat_base_shared, self.omega_base_shared,
                                                                 self.alpha_shared, self.beta_shared, self.thrust_shared,
@@ -171,17 +173,23 @@ class Master():
         self.stop_shared.value = self.keyboard.stop
     
     def _record(self):
-        if self.swarm.mode == False:
+        if self.swarm.mode == True:
             self.logger.log_append(int(round((self.current_time-self.start_time) * 1000)), int(round((self.current_time-self.last_loop_time) * 1000)),
-                                    self.pos_shared[:], self.vel_shared[:], self.quat_shared[:], self.omega_shared[:],
+                                    self.pos_shared[:], self.vel_shared[:], self.rpy_shared[:], self.agv_shared[:],
                                     self.pos_ref_shared[:], self.rpy_ref_shared[:],
                                     self.vel_ref_shared[:], self.agv_ref_shared[:])
+        elif self.swarm.mode == False:
+            pass
+            # self.logger.log_append(int(round((self.current_time-self.start_time) * 1000)), int(round((self.current_time-self.last_loop_time) * 1000)),
+            #                         self.pos_shared[:], self.vel_shared[:], self.quat_shared[:], self.omega_shared[:],
+            #                         self.pos_ref_shared[:], self.rpy_ref_shared[:],
+            #                         self.vel_ref_shared[:], self.agv_ref_shared[:])
 
     def _stop(self):
         self.keyboard.command.quit()
         self.keyboard.command.destroy()
-        # self.logger.savelog()
-        # self.logger.plot()
+        self.logger.savelog()
+        self.logger.plot()
 
         # if self.swarm.mode == 0:
         #     self.swarm.logger.savelog()

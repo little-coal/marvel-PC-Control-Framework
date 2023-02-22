@@ -16,11 +16,11 @@ class Swarm():
         self.mode = mode   #true refers to swarm, false refers to conbinedPlatform
         self.control_mode = control_mode  #'position': x, y, z, yaw
         self._init_time()
-        self._init_logger()
+        # self._init_logger()
 
     def run(self, take_off_shared, switch_mode_shared, stop_shared,
             # Use for swarm
-            cmd_shared, pos_shared, vel_shared, quat_shared, omega_shared,
+            cmd_shared, pos_shared, vel_shared, rpy_shared, agv_shared,
             pos_ref_shared, vel_ref_shared, rpy_ref_shared, agv_ref_shared,
             # Use for combined platform
             quat_base_shared, omega_base_shared, alpha_shared, beta_shared, thrust_shared, debug2_shared):
@@ -38,6 +38,7 @@ class Swarm():
                 if self.mode:
                     if take_off_shared.value == 1:
                         # print("Take Off!")
+                        quat_shared = rpy2quat(rpy_shared[0], rpy_shared[1], rpy_shared[2])
                         self._send_extpose(pos_shared, quat_shared)
                         self._send_cmd(cmd_shared)        
                 else:
@@ -84,7 +85,7 @@ class Swarm():
         for i in range(self.marvel_num):
             self.marvel_swarm_handle[i].send_extpose(
                 pos_shared[0], pos_shared[1], pos_shared[2], 
-                quat_shared[1], quat_shared[2], quat_shared[3], quat_shared[0]) #x, y, z, w
+                quat_shared[1], quat_shared[2], quat_shared[3], quat_shared[0]) #qx, qy, qz, qw
     
     def _send_cmd(self, cmd_ref_shared):
         for i in range(self.marvel_num):
@@ -94,10 +95,10 @@ class Swarm():
     
     def _record(self, pos_ref_shared, rpy_ref_shared, vel_ref_shared, agv_ref_shared):
         for i in range(self.marvel_num):
-            pos_ref_shared[0*i:3*i] = self.marvel_swarm_handle[i].target_pos_and_rot[0:3]
-            rpy_ref_shared[3*i:6*i] = self.marvel_swarm_handle[i].target_pos_and_rot[3:6]
-            vel_ref_shared[0*i:3*i] = self.marvel_swarm_handle[i].target_velocity[0:3]
-            agv_ref_shared[3*i:6*i] = self.marvel_swarm_handle[i].target_velocity[3:6]
+            pos_ref_shared[3*i:3*(i+1)] = self.marvel_swarm_handle[i].target_pos_and_rot[0:3]
+            rpy_ref_shared[3*i:3*(i+1)] = self.marvel_swarm_handle[i].target_pos_and_rot[3:6]
+            vel_ref_shared[3*i:3*(i+1)] = self.marvel_swarm_handle[i].target_velocity[0:3]
+            agv_ref_shared[3*i:3*(i+1)] = self.marvel_swarm_handle[i].target_velocity[3:6]
         # self.logger.log_append(int(round((self.current_time-self.start_time) * 1000)), 
         #                     int(round((self.current_time-self.last_loop_time) * 1000)),
         #                     pos_shared[:], vel_shared[:], quat_shared[:], omega_shared[:],

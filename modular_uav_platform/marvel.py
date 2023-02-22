@@ -301,7 +301,7 @@ if __name__ == "__main__":
     while 1:
         current_time = time.time()
         if current_time - last_loop_time > update_time:
-            marvel.send_position_setpoint(0.0, 0.0, 0.2, 0.0)
+            marvel.send_position_setpoint(0.1, 0.2, 0.3, 0.4)
             pos_ref_shared = marvel.target_pos_and_rot[0:3]
             rpy_ref_shared = marvel.target_pos_and_rot[3:6]
             vel_ref_shared = marvel.target_velocity[0:3]
