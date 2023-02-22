@@ -1,6 +1,6 @@
 """
 Author: Chi Chu
-Date: 1/10/2023
+Date: 2/22/2023
 
 This script maintains the log class of the modular uav swarm.
 Class Logger: 

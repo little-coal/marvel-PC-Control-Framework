@@ -1,6 +1,6 @@
 """
 Author: Chi Chu
-Last Update Date: 2/16/2023
+Last Update Date: 2/22/2023
 
 This is the main script of the modular uav platform swarm.
 Class Swarm: The class of marvel swarms.
@@ -8,8 +8,8 @@ Class Master: Main class, consist of keyboard, logger and swarm, etc.
 Function main:  Obviously, the main function :D.
 
 This project uses multiprocessing, 3 processes in total.
-Process 1(main): collect vicon data, keyboard input, manage them.
-Process 2: send command to marvel swarm, collect marvel data, and log marvel data+vicon data.
+Process 1(main): collect vicon data, collect keyboard input, recieve marvel data from p2, log marvel data+vicon data, manage all things.
+Process 2: send command to marvel swarm, collect marvel data, send marvel data to p1.
 Process 3: high level controller
 
 User inputs:
@@ -21,11 +21,9 @@ User inputs:
 import time
 import logging
 import multiprocessing as mp
-import cflib.crtp
 import config  
 
 # from vicon import Vicon
-from marvel import Marvel
 from marvel_swarm import Swarm
 from marvel_keyboard import KeyboardInput
 from marvel_logger import Logger
