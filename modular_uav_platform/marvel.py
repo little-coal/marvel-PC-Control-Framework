@@ -240,6 +240,10 @@ class Marvel:
 
     def send_position_setpoint(self, x, y, z, yaw):
         self._cf.commander.send_position_setpoint(x=x, y=y, z=z, yaw=yaw)
+
+    def send_twoD_setpoint(self, index, w, x, y, z, alpha, beta, thrust):
+        # TODO: need to adjust
+        self._cf.commander.send_twoD_setpoint(index, w, x, y, z, alpha, beta, thrust)
     
     def send_setpoint(self, roll, pitch, yawrate, thrust):
         self._cf.commander.send_setpoint(roll=roll, pitch=pitch, yawrate=yawrate, thrust=thrust)
