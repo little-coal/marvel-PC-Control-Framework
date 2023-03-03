@@ -131,8 +131,7 @@ class Master():
         self.p_control = mp.Process(target=self.controller.run,
                                                  args=(self.pos_ref_shared, self.rpy_ref_shared, self.vel_ref_shared,
                                                        self.agv_ref_shared,
-                                                       self.pos_shared, self.vel_shared, self.quat_shared,
-                                                       self.omega_shared,
+                                                       self.pos_shared, self.vel_shared,
                                                        self.alpha_shared, self.beta_shared, self.thrust_shared,
                                                        self.debug1_shared, self.stop_shared))
 

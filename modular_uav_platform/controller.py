@@ -86,7 +86,7 @@ class Controller:
 
     def wrench_mapper_init(self):
         # 偏移量矩阵（d1, d2, d3）
-        BP = np.array([[-1/3 * self.Lw, 2/3 * self.lw, 0], [-1/3 * self.lw, -1/3 * self.Lw, 0], [-2/3 * self.Lw, -1/3 * self.lw, 0]])
+        BP = np.array([[-1/3 * self.Lw, 2/3 * self.Lw, 0], [-1/3 * self.Lw, -1/3 * self.Lw, 0], [-2/3 * self.Lw, -1/3 * self.Lw, 0]])
         BPx = np.array([[], [], []])    # 变成叉乘矩阵
         for i in range(3):
             BPix = np.array([[0, -BP[i][2], BP[i][1]], [BP[i][2], 0, -BP[i][0]], [-BP[i][1], BP[i][0], 0]])
@@ -95,9 +95,9 @@ class Controller:
         # A: 叉乘矩阵 6x9
         A = np.concatenate(
             (np.concatenate((np.identity(3), np.identity(3), np.identity(3)), axis=1), BPx), axis=0)
-        B1R = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
-        B2R = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]])
-        B3R = np.array([[0, 1, 0], [-1, 0, 0], [0, 0, 1]])
+        B1R = np.identity(3)
+        B2R = np.identity(3)
+        B3R = np.identity(3)
 
         # B1R = np.identity(3)
         # B2R = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
@@ -117,9 +117,9 @@ class Controller:
         # 9x6, 广义逆， f = Ar-1 dot u
         self.ArT = np.dot(Ar.T, np.linalg.inv(np.dot(Ar, Ar.T)))
 
-        # TODO :为了去奇点去掉了Fiy列   7x6
-        Arr = np.concatenate((Ar[:, 0:1], Ar[:, 2:7], Ar[:, 8:9]), axis=1)
-        self.ArTr = np.dot(Arr.T, np.linalg.inv(np.dot(Arr, Arr.T)))
+        # # TODO :为了去奇点去掉了Fiy列   7x6
+        # Arr = np.concatenate((Ar[:, 0:1], Ar[:, 2:7], Ar[:, 8:9]), axis=1)
+        # self.ArTr = np.dot(Arr.T, np.linalg.inv(np.dot(Arr, Arr.T)))
 
     def rpy_YZX(self, quat0, quat1, quat2, quat3):
         rpy = np.array([0.0, 0.0, 0.0])
@@ -227,27 +227,15 @@ class Controller:
         pitch_judge = abs(self.rpy_ref[1])
         if pitch_judge > np.pi:
             pitch_judge -= np.pi
+        self.q = np.dot(self.ArT, np.concatenate([self.u1, self.u2]))
 
-        if pitch_judge > (np.pi / 2 - self.reduced_alpha_margin1) and pitch_judge < (
-                np.pi / 2 + self.reduced_alpha_margin2):
-            qr = np.dot(self.ArTr, np.concatenate([self.u1, self.u2]))
-            self.q = np.array([qr[0], 0,     qr[1],
-                               qr[2], qr[3], qr[4],
-                               qr[5], 0,     qr[6]])
-            self.Krr = self.Krr2
-            self.Kri = self.Kri2
-            self.Krw = self.Krw2
-        else:
-            self.q = np.dot(self.ArT, np.concatenate([self.u1, self.u2]))
-
-        # TODO: 奇点？
+        # TODO: 奇点先不考虑
         # if pitch_judge > (np.pi / 2 - self.reduced_alpha_margin1) and pitch_judge < (
         #         np.pi / 2 + self.reduced_alpha_margin2):
         #     qr = np.dot(self.ArTr, np.concatenate([self.u1, self.u2]))
         #     self.q = np.array([qr[0], 0,     qr[1],
         #                        qr[2], qr[3], qr[4],
-        #                        qr[5], 0,     qr[6],
-        #                        qr[7], qr[8], qr[9]])
+        #                        qr[5], 0,     qr[6]])
         #     self.Krr = self.Krr2
         #     self.Kri = self.Kri2
         #     self.Krw = self.Krw2
