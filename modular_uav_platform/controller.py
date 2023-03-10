@@ -62,7 +62,7 @@ class Controller:
         self.u2 = np.array([0.0, 0.0, 0.0])
         self.epi = np.array([0.0, 0.0, 0.0])  # integral of pos error
         self.eri = np.array([0.0, 0.0, 0.0])  # integral of ang error
-        self.q = self.m * 9.81 / 4 * np.array([0, 0, 1, 0, 0, 1, 0, 0, 1])  # thrust vector
+        self.q = self.m * 9.81 / 3 * np.array([0, 0, 1, 0, 0, 1, 0, 0, 1])  # thrust vector
         self.qprev = self.q  # previous thrust vector
 
         # controller outputs
@@ -78,6 +78,7 @@ class Controller:
         self.current_time = self.last_loop_time
         self.dt = 0
         self.log = []
+        self.controller_start_time = 0.0
 
         self.debug_local = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
                             # u1           u2              rpy          er           eri

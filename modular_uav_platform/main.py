@@ -30,6 +30,7 @@ from marvel_logger import Logger
 from utils import rpy2quat, quat2rpy
 
 from controller import Controller
+from dynamic import Dynamic
 
 # Only output errors from the logging framework
 logging.basicConfig(level=logging.ERROR)
@@ -49,8 +50,9 @@ class Master():
         self._init_swarm()
         self._init_vicon()
         self._init_logger()
-        time.sleep(0.25)
+        self._init_dynamic()
 
+        time.sleep(0.25)
 
     def run(self):
         self.start_time = time.time()
@@ -95,7 +97,7 @@ class Master():
         # Ground truth varaibles, get from vicon
         self.pos_shared, self.vel_shared = mp.Array('f', 3 * self.marvel_num), mp.Array('f', 3 * self.marvel_num)
         self.rpy_shared, self.agv_shared = mp.Array('f', 3 * self.marvel_num), mp.Array('f', 3 * self.marvel_num)
-        # self.quat_shared, self.omega_shared = mp.Array('f', 4*self.marvel_num), mp.Array('f', 3*self.marvel_num)
+        self.quat_shared, self.omega_shared = mp.Array('f', 4 * self.marvel_num), mp.Array('f', 3 * self.marvel_num)
         # for i in range(4*self.marvel_num):
         #     # legal quaternion
         #     self.quat_shared[0*self.marvel_num:4*self.marvel_num] = [1, 0, 0, 0]
@@ -129,13 +131,11 @@ class Master():
         # 											  self.debug1_shared, self.stop_shared))
         self.controller = Controller()
         self.p_control = mp.Process(target=self.controller.run,
-                                                 args=(self.pos_ref_shared, self.rpy_ref_shared, self.vel_ref_shared,
-                                                       self.agv_ref_shared,
-                                                       self.pos_shared, self.vel_shared,
-                                                       self.alpha_shared, self.beta_shared, self.thrust_shared,
-                                                       self.debug1_shared, self.stop_shared))
-
-        pass
+                                    args=(self.pos_ref_shared, self.rpy_ref_shared, self.vel_ref_shared,
+                                          self.agv_ref_shared,
+                                          self.pos_shared, self.vel_shared,
+                                          self.alpha_shared, self.beta_shared, self.thrust_shared,
+                                          self.debug1_shared, self.stop_shared))
 
     def _init_swarm(self):
         self.swarm = Swarm(num=self.marvel_num, mode=self.mode, control_mode=self.control_mode)
@@ -159,6 +159,12 @@ class Master():
 
     def _init_logger(self):
         self.logger = Logger(folder_name='./logs')
+
+    def _init_dynamic(self):
+        self.dynamic = Dynamic()
+        self.p_dynamic = mp.Process(target=self.dynamic.run,
+                                    args=(self.pos_shared, self.vel_shared, self.quat_shared, self.omega_shared,
+                                          self.alpha_shared, self.beta_shared, self.thrust_shared, self.stop_shared))
 
     def _share_vicon_data(self):
         pass
