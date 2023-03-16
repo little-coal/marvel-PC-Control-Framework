@@ -37,7 +37,7 @@ logging.basicConfig(level=logging.ERROR)
 
 
 class Master():
-    def __init__(self, num=config.MARVEL_NUM, mode=True, control_mode='position'):
+    def __init__(self, num=config.MARVEL_NUM, mode=False, control_mode='position'):
         self.start_time = 0
         self.update_time = 0.005  # 200Hz
         self.marvel_num = num
@@ -131,9 +131,9 @@ class Master():
         # 											  self.debug1_shared, self.stop_shared))
         self.controller = Controller()
         self.p_control = mp.Process(target=self.controller.run,
-                                    args=(self.pos_ref_shared, self.rpy_ref_shared, self.vel_ref_shared,
-                                          self.agv_ref_shared,
-                                          self.pos_shared, self.vel_shared,
+                                    args=(self.pos_base_ref_shared, self.rpy_base_ref_shared, self.vel_base_ref_shared,
+                                          self.agv_base_ref_shared,
+                                          self.pos_base_shared, self.vel_base_shared, self.quat_base_shared, self.omega_base_shared,
                                           self.alpha_shared, self.beta_shared, self.thrust_shared,
                                           self.debug1_shared, self.stop_shared))
 
@@ -163,7 +163,7 @@ class Master():
     def _init_dynamic(self):
         self.dynamic = Dynamic()
         self.p_dynamic = mp.Process(target=self.dynamic.run,
-                                    args=(self.pos_shared, self.vel_shared, self.quat_shared, self.omega_shared,
+                                    args=(self.pos_base_shared, self.vel_base_shared, self.quat_base_shared, self.omega_base_shared,
                                           self.alpha_shared, self.beta_shared, self.thrust_shared, self.stop_shared))
 
     def _share_vicon_data(self):
@@ -189,6 +189,7 @@ class Master():
         self.take_off_shared.value = self.keyboard.take_off
         self.switch_mode_shared.value = self.keyboard.switch_mode
         self.stop_shared.value = self.keyboard.stop
+        print(self.pos_shared[:])
 
     def _record(self):
         if self.swarm.mode == True:
@@ -222,7 +223,10 @@ class Master():
 def main():
     master = Master()
     master.p_swarm.start()
-    sleepTime = 6
+    master.p_control.start()
+    master.p_dynamic.start()
+
+    sleepTime = 3
     for i in range(sleepTime):
         print("Wait for Launch......:{}".format(sleepTime - i))
         time.sleep(1)
@@ -230,7 +234,8 @@ def main():
     master.run()
 
     master.p_swarm.join()
-
+    master.p_control.join()
+    master.p_dynamic.join()
 
 if __name__ == '__main__':
     main()

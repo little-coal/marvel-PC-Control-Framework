@@ -100,15 +100,6 @@ class Controller:
         B2R = np.identity(3)
         B3R = np.identity(3)
 
-        # B1R = np.identity(3)
-        # B2R = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
-        # B3R = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]])
-        # B4R = np.array([[0, 1, 0], [-1, 0, 0], [0, 0, 1]])
-        # Ar = np.dot(A, np.concatenate((np.concatenate((B1R, np.zeros((3, 9))), axis=1),
-        #                                np.concatenate((np.zeros((3, 3)), B2R, np.zeros((3, 6))), axis=1),
-        #                                np.concatenate((np.zeros((3, 6)), B3R, np.zeros((3, 3))), axis=1),
-        #                                np.concatenate((np.zeros((3, 9)), B4R), axis=1)), axis=0))
-
         # Ar:旋转矩阵[R1 0 0]
         #           [0 R2 0]        x A     6x9
         #           [0 0 R3] 9x9

@@ -83,12 +83,15 @@ class Dynamic():
         self.thrust = np.array(thrust_shared[:])
 
 
+    #TODO 改成合力?
     def kinematics(self):
-        q_i = np.array([])
-        for i in range(3):
-            q_i[i] = np.array([np.sin(self.beta[i]), -1.0*np.sin(self.alpha[i])*np.cos(self.beta[i]),
-                             np.cos(self.alpha[i])*np.cos(self.beta[i])]) * self.thrust[i]
-        self.q = np.concatenate([q_i[0]. q_i[1], q_i[2]])
+        q_i = np.array([0.0, 0.0, 0.0])
+        # for i in range(3):
+        #     # fiz
+        #     q_i[i] = np.array([np.sin(self.beta[i]), -1.0*np.sin(self.alpha[i])*np.cos(self.beta[i]),
+        #                      np.cos(self.alpha[i])*np.cos(self.beta[i])]) * self.thrust[i]
+
+        self.q = np.concatenate((self.thrust[:], self.thrust[:]), axis=1)
 
         u = np.dot(self.Ar, self.q)
         self.v_acc = u[0:3]/self.m + [0.0, 0.0, 1.0] * 9.81
@@ -115,6 +118,8 @@ class Dynamic():
         rpy = [roll, pitch, yaw]
         return rpy
 
+    def update_states(self):
+        self.
 
     def step(self):
         self.kinematics()

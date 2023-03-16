@@ -29,7 +29,7 @@ class Swarm():
             # Use for combined platform
             quat_base_shared, omega_base_shared, alpha_shared, beta_shared, thrust_shared, debug2_shared):
         # Initialize the low-level drivers (don't list the debug drivers)
-        cflib.crtp.init_drivers()
+        #cflib.crtp.init_drivers()
         self._connect()
         self.start_time = time.time()
         # Key Loop
