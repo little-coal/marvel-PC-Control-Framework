@@ -68,7 +68,7 @@ class Controller:
         # controller outputs
         self.alpha = np.array([0.0, 0.0, 0.0])
         self.beta = np.array([0.0, 0.0, 0.0])
-        self.thrust = self.m * 9.81 / 4 * np.array([1, 1, 1])  # 42598
+        self.thrust = self.m * 9.81 / 3 * np.array([1, 1, 1])  # 42598
 
         # controller properties
         self.controller_rate = 0.01
@@ -330,7 +330,6 @@ class Controller:
                 # self.dt = self.current_time - self.last_loop_time
                 self.last_loop_time = self.current_time
                 # self.log.append(self.dt)
-
                 debug1_shared[:] = self.debug_local
 
             # time.sleep(0.001)

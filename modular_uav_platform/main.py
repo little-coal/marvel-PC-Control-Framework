@@ -130,6 +130,7 @@ class Master():
         # 											  self.alpha_shared, self.beta_shared, self.thrust_shared,
         # 											  self.debug1_shared, self.stop_shared))
         self.controller = Controller()
+        print("------HighController Initialization Completed------")
         self.p_control = mp.Process(target=self.controller.run,
                                     args=(self.pos_base_ref_shared, self.rpy_base_ref_shared, self.vel_base_ref_shared,
                                           self.agv_base_ref_shared,
@@ -189,7 +190,16 @@ class Master():
         self.take_off_shared.value = self.keyboard.take_off
         self.switch_mode_shared.value = self.keyboard.switch_mode
         self.stop_shared.value = self.keyboard.stop
-        print(self.pos_shared[:])
+
+        # print(self.pos_base_shared[:])
+        # print(self.pos_base_ref_shared[:])
+        # print("____xia")
+        # print(self.vel_base_shared[:])
+        # print("________")
+        print("dyn:")
+        print(self.dynamic.u1)
+        print("cont:")
+        print(self.controller.u1)
 
     def _record(self):
         if self.swarm.mode == True:
@@ -208,8 +218,10 @@ class Master():
     def _stop(self):
         self.keyboard.command.quit()
         self.keyboard.command.destroy()
-        self.logger.savelog()
-        self.logger.plot()
+
+        if self.swarm.mode == True:
+            self.logger.savelog()
+            self.logger.plot()
 
         # if self.swarm.mode == 0:
         #     self.swarm.logger.savelog()
@@ -233,9 +245,10 @@ def main():
     # print("Verify handle num:{}".format(len(master.swarm.marvel_swarm_handle)))    
     master.run()
 
-    master.p_swarm.join()
     master.p_control.join()
     master.p_dynamic.join()
+    master.p_swarm.join()
+
 
 if __name__ == '__main__':
     main()

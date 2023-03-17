@@ -1,9 +1,7 @@
-
 import time
 
 import numpy as np
 from utils import rpy2quat
-
 
 
 class Dynamic():
@@ -11,7 +9,7 @@ class Dynamic():
         self.v_acc = np.array([0.0, 0.0, 0.0])
         self.omega_acc = np.array([0.0, 0.0, 0.0])
 
-        self.update_time = 0.01 # 100Hz
+        self.update_time = 0.01  # 100Hz
 
         self.m = 0.13
         self.Lw = 0.185  # from system center to qc center
@@ -31,6 +29,7 @@ class Dynamic():
         self.wrench_mapper_init()
 
         # feedback
+        self.R_fb = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]])
         self.pos_fb = np.array([0.0, 0.0, 0.2])
         self.vel_fb = np.array([0.0, 0.0, 0.0])
         self.quat_fb = np.array([1.0, 0.0, 0.0, 0.0])
@@ -45,12 +44,11 @@ class Dynamic():
         self.q = self.m * 9.81 / 3 * np.array([0, 0, 1, 0, 0, 1, 0, 0, 1])  # thrust vector
         self.qprev = self.q  # previous thrust vector
 
-
-
     def wrench_mapper_init(self):
         # 偏移量矩阵（d1, d2, d3）
-        BP = np.array([[-1/3 * self.Lw, 2/3 * self.Lw, 0], [-1/3 * self.Lw, -1/3 * self.Lw, 0], [-2/3 * self.Lw, -1/3 * self.Lw, 0]])
-        BPx = np.array([[], [], []])    # 变成叉乘矩阵
+        BP = np.array([[-1 / 3 * self.Lw, 2 / 3 * self.Lw, 0], [-1 / 3 * self.Lw, -1 / 3 * self.Lw, 0],
+                       [-2 / 3 * self.Lw, -1 / 3 * self.Lw, 0]])
+        BPx = np.array([[], [], []])  # 变成叉乘矩阵
         for i in range(3):
             BPix = np.array([[0, -BP[i][2], BP[i][1]], [BP[i][2], 0, -BP[i][0]], [-BP[i][1], BP[i][0], 0]])
             BPx = np.concatenate((BPx, BPix), axis=1)
@@ -66,9 +64,8 @@ class Dynamic():
         #           [0 R2 0]        x A     6x9
         #           [0 0 R3] 9x9
         self.Ar = np.dot(A, np.concatenate((np.concatenate((B1R, np.zeros((3, 6))), axis=1),
-                                       np.concatenate((np.zeros((3, 3)), B2R, np.zeros((3, 3))), axis=1),
-                                       np.concatenate((np.zeros((3, 6)), B3R), axis=1)), axis=0))
-
+                                            np.concatenate((np.zeros((3, 3)), B2R, np.zeros((3, 3))), axis=1),
+                                            np.concatenate((np.zeros((3, 6)), B3R), axis=1)), axis=0))
 
     def push_states(self, pos_shared, vel_shared,
                     quat_shared, omega_shared):
@@ -82,22 +79,26 @@ class Dynamic():
         self.beta = np.array(beta_shared[:])
         self.thrust = np.array(thrust_shared[:])
 
-
-    #TODO 改成合力?
     def kinematics(self):
-        q_i = np.array([0.0, 0.0, 0.0])
+        # q_i = np.array([0.0, 0.0, 0.0])
         # for i in range(3):
         #     # fiz
-        #     q_i[i] = np.array([np.sin(self.beta[i]), -1.0*np.sin(self.alpha[i])*np.cos(self.beta[i]),
-        #                      np.cos(self.alpha[i])*np.cos(self.beta[i])]) * self.thrust[i]
+        #     # q_i[i] = np.array([np.sin(self.beta[i]), -1.0*np.sin(self.alpha[i])*np.cos(self.beta[i]),
+        #     #                  np.cos(self.alpha[i])*np.cos(self.beta[i])]) * self.thrust[i]
+        #     q_i[i] = self.thrust[i] * np.cos(self.alpha[i]) * np.cos(self.beta[i])
 
-        self.q = np.concatenate((self.thrust[:], self.thrust[:]), axis=1)
+        self.q = np.concatenate((self.thrust[0]*np.array([0.0, 0.0, 1.0]), self.thrust[1]*np.array([0.0, 0.0, 1.0]),
+                                 self.thrust[2]*np.array([0.0, 0.0, 1.0])), axis=0)
 
         u = np.dot(self.Ar, self.q)
-        self.v_acc = u[0:3]/self.m + [0.0, 0.0, 1.0] * 9.81
-        self.omega_acc = u[3:6]/self.IB
+        self.u1 = u[0:3]
+        self.u2 = u[3:6]
+        # self.v_acc = u[0:3] / self.m + np.array([0.0, 0.0, 1.0]) * 9.81
+        self.v_acc = u[0:3] / self.m
+        IBT = np.dot(self.IB.T, np.linalg.inv(np.dot(self.IB, self.IB.T)))
+        self.omega_acc = np.dot(IBT, u[3:6])
 
-    def position_comp(self):
+    def position_update(self):
         temp10 = self.current_time - self.last_loop_time
         self.pos_fb += self.vel_fb * temp10
         # quat?
@@ -119,12 +120,13 @@ class Dynamic():
         return rpy
 
     def update_states(self):
-        self.
+        # self.
+        pass
 
     def step(self):
         self.kinematics()
         self.vel_update()
-        self.position_comp()
+        self.position_update()
 
     def run(self, pos_shared, vel_shared, quat_shared, omega_shared,
             alpha_shared, beta_shared, thrust_shared, stop_shared):
@@ -148,6 +150,3 @@ class Dynamic():
             # time.sleep(0.001)
             else:
                 time.sleep(0.0001)
-
-
-

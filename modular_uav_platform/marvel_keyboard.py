@@ -23,7 +23,7 @@ class KeyboardInput():
 		self.control_mode = control_mode
 		print("------Keyboard Is Ready------")
 
-		self.pos = [0.0,0.0,1.0] # x y z
+		self.pos = [0.0,0.0,0.2] # x y z
 		self.vel = [0.0,0.0,0.0] # velocity
 		self.rpy = [0.0,0.0,0.0] # roll pitch yaw
 		self.agv = [0.0,0.0,0.0] # angular velocity
